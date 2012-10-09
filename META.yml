@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Archive-BagIt
-version:            0.02
+version:            0.02_1
 abstract:           An interface to make and verify bags according to the BagIt standard
 author:
     - Robert Schmidt <rjeschmi@gmail.com>
