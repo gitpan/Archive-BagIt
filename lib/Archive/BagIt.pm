@@ -15,11 +15,11 @@ Archive::BagIt - An interface to make and verify bags according to the BagIt sta
 
 =head1 VERSION
 
-Version 0.02_3
+Version 0.02_4
 
 =cut
 
-our $VERSION = '0.02_3';
+our $VERSION = '0.02_4';
 
 
 =head1 SYNOPSIS
@@ -248,15 +248,8 @@ sub _payload_files{
 }
 =head1 AUTHOR
 
-=over 4
-
-=item *
-
-Robert Schmidt, C<< <rjeschmi at gmail.com> >> 
-
-=item *
-
-William Wueppelmann, C<< <william at c7a.ca> >>
+Robert Schmidt, E<lt>rjeschmi at gmail.comE<gt>
+William Wueppelmann, E<lt>william at c7a.caE<gt>
 
 =back
 
@@ -299,15 +292,15 @@ L<http://search.cpan.org/dist/Archive-BagIt/>
 =back
 
 
-=head1 ACKNOWLEDGEMENTS
+=head1 COPYRIGHT
+
+Copyright (c) 2012, the above named author(s).
 
 
-=head1 LICENSE AND COPYRIGHT
+=head1 LICENSE
 
-Copyright 2012 Robert Schmidt and William Wueppelmann
-
-This program is released under the following license: cc0
-
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
 
