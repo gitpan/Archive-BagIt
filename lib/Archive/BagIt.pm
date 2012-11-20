@@ -15,11 +15,11 @@ Archive::BagIt - An interface to make and verify bags according to the BagIt sta
 
 =head1 VERSION
 
-Version 0.02_2
+Version 0.02_3
 
 =cut
 
-our $VERSION = '0.02_2';
+our $VERSION = '0.02_3';
 
 
 =head1 SYNOPSIS
@@ -54,6 +54,7 @@ and I will endeavour to maintain compatibility with it.
 sub new {
   my ($class,$bag_path) = @_;
   my $self = {};
+  $bag_path=~s!/$!!;
   $self->{'bag_path'} = $bag_path || "";
   bless $self, $class;
   return $self;
@@ -61,10 +62,18 @@ sub new {
 
 =head2 make_bag
    A constructor that will make and return a bag from a directory
+
+   If a data directory exists, assume it is already a bag (no checking for invalid files in root)
 =cut
 
 sub make_bag {
   my ($class, $bag_dir) = @_;
+  unless ( -d $bag_dir) { die ( "source bag directory doesn't exist"); }
+  unless ( -d $bag_dir."/data") {
+    rename ($bag_dir, $bag_dir.".tmp");
+    mkdir  ($bag_dir);
+    rename ($bag_dir.".tmp", $bag_dir."/data");
+  }
   my $self=$class->new($bag_dir);
   $self->_write_bagit($bag_dir);
   $self->_write_baginfo($bag_dir);
@@ -96,6 +105,7 @@ sub _write_baginfo {
 }
 
 sub _manifest_crc32 {
+    require String::CRC32;
     my($self,$bagit) = @_;
     my $manifest_file = "$bagit/manifest-crc32.txt";
     my $data_dir = "$bagit/data";
@@ -209,6 +219,7 @@ sub get_checksum {
 
 =head2 version
 
+   Returns the bagit version according to the bagit.txt file.
 =cut
 
 sub version {
@@ -223,7 +234,18 @@ sub version {
     return $1 || 0;
 }
 
+sub _payload_files{
+  my($self) = @_;
 
+  my $payload_dir = $self->{"bag_path"};
+  
+  use File::Find;
+  my @payload=();
+  File::Find::find({push(@payload,$File::Find::name); print "name: ".$File::Find::name."\n"; }, $payload_dir);
+  
+  return @payload;
+
+}
 =head1 AUTHOR
 
 =over 4
