@@ -15,11 +15,11 @@ Archive::BagIt - An interface to make and verify bags according to the BagIt sta
 
 =head1 VERSION
 
-Version 0.02_4
+Version 0.02_5
 
 =cut
 
-our $VERSION = '0.02_4';
+our $VERSION = '0.02_5';
 
 
 =head1 SYNOPSIS
@@ -241,7 +241,10 @@ sub _payload_files{
   
   use File::Find;
   my @payload=();
-  File::Find::find({push(@payload,$File::Find::name); print "name: ".$File::Find::name."\n"; }, $payload_dir);
+  File::Find::find( sub{ 
+    push(@payload,$File::Find::name); 
+    print "name: ".$File::Find::name."\n"; 
+  }, $payload_dir);
   
   return @payload;
 
