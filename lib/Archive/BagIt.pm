@@ -4,6 +4,10 @@ use 5.006;
 use strict;
 use warnings;
 
+our @checksum_algos = qw(md5 sha1);
+
+use File::Find;
+
 =head1 WARNING
 
 This is experimental software for the moment and under active development. I
@@ -15,11 +19,11 @@ Archive::BagIt - An interface to make and verify bags according to the BagIt sta
 
 =head1 VERSION
 
-Version 0.02_5
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02_5';
+our $VERSION = '0.03';
 
 
 =head1 SYNOPSIS
@@ -78,6 +82,7 @@ sub make_bag {
   $self->_write_bagit($bag_dir);
   $self->_write_baginfo($bag_dir);
   $self->_manifest_md5($bag_dir);
+  $self->_tagmanifest_md5($bag_dir);
   return $self;
 }
 
@@ -131,8 +136,7 @@ sub _manifest_crc32 {
 
 
 sub _manifest_md5 {
-    use File::Find;
-    use Digest::MD5 qw/md5_hex/;
+    use Digest::MD5;
     my($self, $bagit) = @_;
     my $manifest_file = "$bagit/manifest-md5.txt";
     my $data_dir = "$bagit/data";
@@ -145,7 +149,7 @@ sub _manifest_md5 {
             my $file = $File::Find::name;
             if (-f $_) {
                 open(DATA, "<$_") or die("Cannot read $_: $!");
-                my $digest = md5_hex(join("", <DATA>));
+                my $digest = Digest::MD5->new->addfile(*DATA)->hexdigest;
                 close(DATA);
                 my $filename = substr($file, length($bagit) + 1);
                 print($md5_fh "$digest  $filename\n");
@@ -156,6 +160,36 @@ sub _manifest_md5 {
     close(MD5);
 }
 
+sub _tagmanifest_md5 {
+  my ($self, $bagit) = @_;
+
+  use Digest::MD5;
+
+  my $tagmanifest_file= "$bagit/tagmanifest-md5.txt";
+ 
+  open (MD5, ">$tagmanifest_file") or die ("Cannot create tagmanifest-md5.txt: $! \n");
+
+  my $md5_fh = *MD5;
+  find (
+    sub {
+      my $file = $File::Find::name;
+      if (-f $_ && $_=~m/^tagmanifest-.*\.txt/) {
+        open(DATA, "<$_") or die("Cannot read $_: $!");
+        my $digest = Digest::MD5->new->addfile(*DATA)->hexdigest;
+        close(DATA);
+        my $filename = substr($file, length($bagit) + 1);
+        print($md5_fh "$digest  $filename\n");
+ 
+      }
+      elsif($_=~m/\/data$/) {
+        $File::Find::prune=1;
+      }
+
+  }, $bagit);
+
+  close(MD5);
+}
+
 =head2 verify_bag
 
 An interface to verify a bag
@@ -164,7 +198,15 @@ An interface to verify a bag
 
 sub verify_bag {
     my ($self,$bagit) = @_;
-    $self->{'bag_path'} = $bagit;
+    if($bagit) {
+      $self->{'bag_path'} = $bagit;
+    }
+    elsif ($self->{'bag_path'}) {
+      $bagit = $self->{'bag_path'};
+    }
+    else {
+      die ("no bag_path defined");
+    }
     my $manifest_file = "$bagit/manifest-md5.txt";
     my $payload_dir   = "$bagit/data";
     my %manifest      = ();
@@ -234,27 +276,74 @@ sub version {
     return $1 || 0;
 }
 
+=head2 payload_files
+
+  Returns an array with all of the payload files (those files that are below the data directory)
+
+=cut
+
+sub payload_files {
+  my($self) = @_;
+  my @payload = $self->_payload_files();
+  return @payload; 
+}
+
 sub _payload_files{
   my($self) = @_;
 
-  my $payload_dir = $self->{"bag_path"};
+  my $payload_dir = join( "/", $self->{"bag_path"}, "data");
   
-  use File::Find;
   my @payload=();
   File::Find::find( sub{ 
     push(@payload,$File::Find::name); 
-    print "name: ".$File::Find::name."\n"; 
+    #print "name: ".$File::Find::name."\n"; 
   }, $payload_dir);
   
   return @payload;
 
+}
+
+=head2 manifest_files
+
+  return an array with the list of manifest files that exist in the bag
+
+=cut
+
+sub manifest_files {
+  my($self) = @_;
+  my @manifest_files;
+  foreach my $algo (@checksum_algos) {
+    my $manifest_file = $self->{"bag_path"}."/manifest-$algo.txt";
+    if (-f $manifest_file) {
+      push @manifest_files, $manifest_file;
+    }
+  }
+  return @manifest_files;
+}
+
+=head2 tagmanifest_files
+  
+  return an array with the list of tagmanifest files
+
+=cut
+
+sub tagmanifest_files {
+  my ($self) = @_;
+  my @tagmanifest_files;
+  foreach my $algo (@checksum_algos) {
+    my $tagmanifest_file = $self->{"bag_path"}."/tagmanifest-$algo.txt";
+    if (-f $tagmanifest_file) {
+      push @tagmanifest_files, $tagmanifest_file;
+    }
+  }
+  return @tagmanifest_files;
+  
 }
 =head1 AUTHOR
 
 Robert Schmidt, E<lt>rjeschmi at gmail.comE<gt>
 William Wueppelmann, E<lt>william at c7a.caE<gt>
 
-=back
 
 =head1 BUGS
 
