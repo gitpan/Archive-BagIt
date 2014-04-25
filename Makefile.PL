@@ -27,7 +27,7 @@ my %WriteMakefileArgs = (
     "MooseX::App::Cmd" => 0
   },
   "TEST_REQUIRES" => {},
-  "VERSION" => "0.040",
+  "VERSION" => "0.041",
   "test" => {
     "TESTS" => "t/*.t"
   }
