@@ -123,6 +123,7 @@ sub _load_tagmanifests {
   }
   return $self;
 }
+
 =head2 make_bag
    A constructor that will make and return a bag from a directory
 
@@ -415,6 +416,8 @@ sub _non_payload_files {
   return @payload;
 
 }
+
+
 =head2 manifest_files
 
   return an array with the list of manifest files that exist in the bag
