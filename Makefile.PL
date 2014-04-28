@@ -17,7 +17,9 @@ my %WriteMakefileArgs = (
     "ExtUtils::MakeMaker" => "6.30"
   },
   "DISTNAME" => "Archive-BagIt",
-  "EXE_FILES" => [],
+  "EXE_FILES" => [
+    "bin/bagit.pl"
+  ],
   "LICENSE" => "perl",
   "NAME" => "Archive::BagIt",
   "PREREQ_PM" => {

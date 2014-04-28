@@ -10,7 +10,6 @@ dist.ini
 ignore.txt
 lib/Archive/BagIt.pm
 lib/Archive/BagIt/App.pm
-lib/Archive/BagIt/App/Command/create.pm
 lib/Archive/BagIt/App/Verify.pm
 lib/Archive/BagIt/Fast.pm
 t/00-load.t

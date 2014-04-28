@@ -1,5 +1,5 @@
 package Archive::BagIt;
-
+$Archive::BagIt::VERSION = '0.042';
 use 5.006;
 use strict;
 use warnings;
@@ -24,14 +24,10 @@ better speed by mmap-ing files.
 
 Archive::BagIt - An interface to make and verify bags according to the BagIt standard
 
+
 =head1 VERSION
 
-Version 0.03
-
-=cut
-
-our $VERSION = '0.038';
-
+version 0.042
 
 =head1 SYNOPSIS
 
