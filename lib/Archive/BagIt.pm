@@ -1,5 +1,5 @@
 package Archive::BagIt;
-$Archive::BagIt::VERSION = '0.042';
+$Archive::BagIt::VERSION = '0.043'; # TRIAL
 use 5.006;
 use strict;
 use warnings;
@@ -27,7 +27,7 @@ Archive::BagIt - An interface to make and verify bags according to the BagIt sta
 
 =head1 VERSION
 
-version 0.042
+version 0.043
 
 =head1 SYNOPSIS
 
