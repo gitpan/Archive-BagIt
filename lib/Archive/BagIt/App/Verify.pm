@@ -1,5 +1,5 @@
 package Archive::BagIt::App::Verify;
-$Archive::BagIt::App::Verify::VERSION = '0.043'; # TRIAL
+$Archive::BagIt::App::Verify::VERSION = '0.044';
 use MooseX::App::Command;
 
 parameter 'bag_path' => (
@@ -65,6 +65,6 @@ Archive::BagIt::App::Verify - verifies a bag
 
 =head1 VERSION
 
-version 0.043
+version 0.044
 
 =cut

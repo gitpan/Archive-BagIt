@@ -1,5 +1,5 @@
 package Archive::BagIt;
-$Archive::BagIt::VERSION = '0.043'; # TRIAL
+$Archive::BagIt::VERSION = '0.044';
 use 5.006;
 use strict;
 use warnings;
@@ -27,7 +27,7 @@ Archive::BagIt - An interface to make and verify bags according to the BagIt sta
 
 =head1 VERSION
 
-version 0.043
+version 0.044
 
 =head1 SYNOPSIS
 
@@ -274,7 +274,7 @@ sub verify_bag {
 
     # Read the manifest file
     #print Dumper($self->{entries});
-    foreach my $entry (keys($self->{entries})) {
+    foreach my $entry (keys(%{$self->{entries}})) {
       $manifest{$entry} = $self->{entries}->{$entry};
     }
 

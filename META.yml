@@ -17,4 +17,4 @@ requires:
   File::Find: '0'
   Moose: '0'
   MooseX::App::Cmd: '0'
-version: '0.043'
+version: '0.044'

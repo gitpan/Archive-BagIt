@@ -21,6 +21,6 @@ bagit.pl - a command that lets you check your bags
 
 =head1 VERSION
 
-version 0.043
+version 0.044
 
 =cut
