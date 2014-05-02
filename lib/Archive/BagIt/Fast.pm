@@ -1,16 +1,16 @@
 package Archive::BagIt::Fast;
-$Archive::BagIt::Fast::VERSION = '0.044';
+$Archive::BagIt::Fast::VERSION = '0.045';
 use parent "Archive::BagIt";
 
 use IO::AIO;
-
+use Time::HiRes qw(time);
 =head1 NAME
 
 Archive::BagIt::Fast - For people who are willing to rely on some other modules in order to get better performance
 
 =head1 VERSION
 
-version 0.044
+version 0.045
 
 =cut
 
@@ -53,10 +53,12 @@ sub verify_bag {
         unless ($manifest{$local_name}) {
           die ("file found not in manifest: [$local_name]");
         }
-        #my $start_time=time();
 
         open(my $fh, "<:raw", "$bagit/$local_name") or die ("Cannot open $local_name");
         stat $fh;
+        $self->{stats}->{files}->{"$bagit/$local_name"}->{size}= -s _;
+        $self->{stats}->{size} += -s _;
+        my $start_time = time();
         if (-s _ < $MMAP_MIN ) {
           sysread $fh, my $data, -s _;
           $digest = $digestobj->add($data)->hexdigest;
@@ -68,8 +70,10 @@ sub verify_bag {
         else {
           $digest = $digestobj->addfile($fh)->hexdigest;
         }
+        my $finish_time = time();
+        $self->{stats}->{files}->{"$bagit/$local_name"}->{verify_time}= ($finish_time - $start_time);
+        $self->{stats}->{verify_time} += ($finish_time-$start_time);
         close($fh);
-        #print "$bagit/$local_name md5 in ".(time()-$start_time)."\n";
         unless ($digest eq $manifest{$local_name}) {
           if($return_all_errors) {
             $invalids{$local_name} = $digest;
