@@ -24,7 +24,7 @@ my %WriteMakefileArgs = (
     "File::Find" => 0,
     "Moose" => 0
   },
-  "VERSION" => "0.046",
+  "VERSION" => "0.047",
   "test" => {
     "TESTS" => "t/*.t"
   }

@@ -1,5 +1,5 @@
 package Archive::BagIt;
-$Archive::BagIt::VERSION = '0.046'; # TRIAL
+$Archive::BagIt::VERSION = '0.047'; # TRIAL
 use 5.006;
 use strict;
 use warnings;
@@ -27,7 +27,7 @@ Archive::BagIt - An interface to make and verify bags according to the BagIt sta
 
 =head1 VERSION
 
-version 0.046
+version 0.047
 
 =head1 SYNOPSIS
 
@@ -231,7 +231,13 @@ sub _tagmanifest_md5 {
   find (
     sub {
       my $file = $File::Find::name;
-      if (-f $_ && $_=~m/^tagmanifest-.*\.txt/) {
+      if ($_=~m/^data$/) {
+        $File::Find::prune=1;
+      }
+      elsif ($_=~m/^tagmanifest-.*\.txt/) {
+        # Ignore, we can't take digest from ourselves
+      }
+      elsif ( -f $_ ) {
         open(DATA, "<$_") or die("Cannot read $_: $!");
         my $digest = Digest::MD5->new->addfile(*DATA)->hexdigest;
         close(DATA);
@@ -239,10 +245,6 @@ sub _tagmanifest_md5 {
         print($md5_fh "$digest  $filename\n");
  
       }
-      elsif($_=~m/\/data$/) {
-        $File::Find::prune=1;
-      }
-
   }, $bagit);
 
   close(MD5);

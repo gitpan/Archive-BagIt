@@ -1,5 +1,5 @@
 package Archive::BagIt::Fast;
-$Archive::BagIt::Fast::VERSION = '0.046'; # TRIAL
+$Archive::BagIt::Fast::VERSION = '0.047'; # TRIAL
 use parent "Archive::BagIt";
 
 use IO::AIO;
@@ -10,7 +10,7 @@ Archive::BagIt::Fast - For people who are willing to rely on some other modules 
 
 =head1 VERSION
 
-version 0.046
+version 0.047
 
 =cut
 

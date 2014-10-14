@@ -16,4 +16,4 @@ requires:
   Digest::MD5: '0'
   File::Find: '0'
   Moose: '0'
-version: '0.046'
+version: '0.047'
