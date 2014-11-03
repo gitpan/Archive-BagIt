@@ -1,62 +1,15 @@
 package Archive::BagIt;
-$Archive::BagIt::VERSION = '0.047'; # TRIAL
-use 5.006;
+
 use strict;
+use 5.006;
 use warnings;
+
+our $VERSION = '0.048'; # TRIAL VERSION
 
 our @checksum_algos = qw(md5 sha1);
 our $DEBUG=0;
 use File::Find;
 use Data::Dumper;
-=head1 WARNING
-
-This is experimental software for the moment and under active development. I
-hope to have a beta version available soon.
-
-We use it fairly widely in-house, but it doesn't necessarily implement all of the specs.
-
-Email me with anything you need done urgently.
-
-Also: Check out Archive::BagIt::Fast if you are willing to add some extra dependendies to get
-better speed by mmap-ing files.
-
-=head1 NAME
-
-Archive::BagIt - An interface to make and verify bags according to the BagIt standard
-
-
-=head1 VERSION
-
-version 0.047
-
-=head1 SYNOPSIS
-
-This modules will hopefully help with the basic commands needed to create
-and verify a bag. My intention is not to be strict and enforce all of the
-specification. The reference implementation is the java version
-and I will endeavour to maintain compatibility with it.
-
-    use Archive::BagIt;
-
-    #read in an existing bag:
-    my $bag = Archive::BagIt->new($bag_dir);
-
-
-    #construct bag in an existing directory
-    my $bag = Archive::BagIt->make_bag($bag_dir);
-
-    # Validate a BagIt archive against its manifest
-    my $bag = Archive::BagIt->new($bag_dir);
-    $is_valid = $bag->verify_bag();
-
-
-
-
-=head1 SUBROUTINES
-
-=head2 new
-   An Object Oriented Interface to a bag. Opens an existing bag.
-=cut
 
 sub new {
   my ($class,$bag_path) = @_;
@@ -73,8 +26,8 @@ sub new {
 sub _open {
   my($self) = @_;
 
-  $self->_load_manifests(); 
-  $self->_load_tagmanifests(); 
+  $self->_load_manifests();
+  $self->_load_tagmanifests();
 
   return $self;
 }
@@ -84,8 +37,8 @@ sub _load_manifests {
 
   my @manifests = $self->manifest_files();
   foreach my $manifest_file (@manifests) {
-    die("Cannot open $manifest_file: $!") unless (open (MANIFEST, $manifest_file));
-    while (my $line = <MANIFEST>) {
+    die("Cannot open $manifest_file: $!") unless (open (my $MANIFEST,"<", $manifest_file));
+    while (my $line = <$MANIFEST>) {
         chomp($line);
         my ($digest,$file);
         ($digest, $file) = $line =~ /^([a-f0-9]+)\s+([a-zA-Z0-9_\.\/\-]+)/;
@@ -96,7 +49,7 @@ sub _load_manifests {
           $self->{entries}->{$file} = $digest;
         }
     }
-    close(MANIFEST);
+    close($MANIFEST);
   }
 
   return $self;
@@ -105,26 +58,21 @@ sub _load_manifests {
 
 sub _load_tagmanifests {
   my ($self) = @_;
-  
+
   my @tagmanifests = $self->tagmanifest_files();
   foreach my $tagmanifest_file (@tagmanifests) {
-    die("Cannot open $tagmanifest_file: $!") unless (open(TAGMANIFEST, $tagmanifest_file));
-    while (my $line = <TAGMANIFEST>) {
+    die("Cannot open $tagmanifest_file: $!") unless (open(my $TAGMANIFEST,"<", $tagmanifest_file));
+    while (my $line = <$TAGMANIFEST>) {
       chomp($line);
       my($digest,$file) = split(/\s+/, $line, 2);
       $self->{tagentries}->{$file} = $digest;
     }
-    close(TAGMANIFEST);
+    close($TAGMANIFEST);
 
   }
   return $self;
 }
 
-=head2 make_bag
-   A constructor that will make and return a bag from a directory
-
-   If a data directory exists, assume it is already a bag (no checking for invalid files in root)
-=cut
 
 sub make_bag {
   my ($class, $bag_dir) = @_;
@@ -145,9 +93,9 @@ sub make_bag {
 
 sub _write_bagit {
     my($self, $bagit) = @_;
-    open(BAGIT, ">$bagit/bagit.txt") or die("Can't open $bagit/bagit.txt for writing: $!");
-    print(BAGIT "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8");
-    close(BAGIT);
+    open(my $BAGIT, ">", $bagit."/bagit.txt") or die("Can't open $bagit/bagit.txt for writing: $!");
+    print($BAGIT, "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8");
+    close($BAGIT);
     return 1;
 }
 
@@ -156,13 +104,13 @@ sub _write_bagit {
 sub _write_baginfo {
     use POSIX;
     my($self, $bagit, %param) = @_;
-    open(BAGINFO, ">$bagit/bag-info.txt") or die("Can't open $bagit/bag-info.txt for writing: $!");
+    open(my $BAGINFO, ">", $bagit."/bag-info.txt") or die("Can't open $bagit/bag-info.txt for writing: $!");
     $param{'Bagging-Date'} = POSIX::strftime("%F", gmtime(time));
     $param{'Bag-Software-Agent'} = 'Archive::BagIt <http://search.cpan.org/~rjeschmi/Archive-BagIt>';
     while(my($key, $value) = each(%param)) {
-        print(BAGINFO "$key: $value\n");
+        print($BAGINFO "$key: $value\n");
     }
-    close(BAGINFO);
+    close($BAGINFO);
     return 1;
 }
 
@@ -173,22 +121,21 @@ sub _manifest_crc32 {
     my $data_dir = "$bagit/data";
 
     # Generate MD5 digests for all of the files under ./data
-    open(FH, ">$manifest_file") or die("Cannot create manifest-crc32.txt: $!\n");
-    my $fh = *FH;
+    open(my $fh, ">",$manifest_file) or die("Cannot create manifest-crc32.txt: $!\n");
     find(
         sub {
             my $file = $File::Find::name;
             if (-f $_) {
-                open(DATA, "<$_") or die("Cannot read $_: $!");
-                my $digest = sprintf("%010d",crc32(*DATA));
-                close(DATA);
+                open(my $DATA, "<", $_) or die("Cannot read $_: $!");
+                my $digest = sprintf("%010d",crc32($DATA));
+                close($DATA);
                 my $filename = substr($file, length($bagit) + 1);
                 print($fh "$digest  $filename\n");
             }
         },
         $data_dir
     );
-    close(FH);
+    close($fh);
 }
 
 
@@ -199,15 +146,14 @@ sub _manifest_md5 {
     my $data_dir = "$bagit/data";
     print "creating manifest: $data_dir\n";
     # Generate MD5 digests for all of the files under ./data
-    open(MD5, ">$manifest_file") or die("Cannot create manifest-md5.txt: $!\n");
-    my $md5_fh = *MD5;
+    open(my $md5_fh, ">",$manifest_file) or die("Cannot create manifest-md5.txt: $!\n");
     find(
         sub {
             my $file = $File::Find::name;
             if (-f $_) {
-                open(DATA, "<$_") or die("Cannot read $_: $!");
-                my $digest = Digest::MD5->new->addfile(*DATA)->hexdigest;
-                close(DATA);
+                open(my $DATA, "<", "$_") or die("Cannot read $_: $!");
+                my $digest = Digest::MD5->new->addfile($DATA)->hexdigest;
+                close($DATA);
                 my $filename = substr($file, length($bagit) + 1);
                 print($md5_fh "$digest  $filename\n");
                 #print "lineout: $digest $filename\n";
@@ -215,7 +161,7 @@ sub _manifest_md5 {
         },
         $data_dir
     );
-    close(MD5);
+    close($md5_fh);
 }
 
 sub _tagmanifest_md5 {
@@ -224,10 +170,9 @@ sub _tagmanifest_md5 {
   use Digest::MD5;
 
   my $tagmanifest_file= "$bagit/tagmanifest-md5.txt";
- 
-  open (MD5, ">$tagmanifest_file") or die ("Cannot create tagmanifest-md5.txt: $! \n");
 
-  my $md5_fh = *MD5;
+  open (my $md5_fh, ">", $tagmanifest_file) or die ("Cannot create tagmanifest-md5.txt: $! \n");
+
   find (
     sub {
       my $file = $File::Find::name;
@@ -238,26 +183,17 @@ sub _tagmanifest_md5 {
         # Ignore, we can't take digest from ourselves
       }
       elsif ( -f $_ ) {
-        open(DATA, "<$_") or die("Cannot read $_: $!");
-        my $digest = Digest::MD5->new->addfile(*DATA)->hexdigest;
-        close(DATA);
+        open(my $DATA, "<", "$_") or die("Cannot read $_: $!");
+        my $digest = Digest::MD5->new->addfile($DATA)->hexdigest;
+        close($DATA);
         my $filename = substr($file, length($bagit) + 1);
         print($md5_fh "$digest  $filename\n");
- 
       }
   }, $bagit);
 
-  close(MD5);
+  close($md5_fh);
 }
 
-=head2 verify_bag
-
-An interface to verify a bag.
-
-You might also want to check Archive::BagIt::Fast to see a more direct way of accessing files (and thus faster).
-
-
-=cut
 
 sub verify_bag {
     my ($self,$opts) = @_;
@@ -293,7 +229,6 @@ sub verify_bag {
           die ("file found not in manifest: [$local_name]");
         }
         #my $start_time=time();
-        
         open(my $fh, "<", "$bagit/$local_name") or die ("Cannot open $local_name");
         $digest = $digestobj->addfile($fh)->hexdigest;
         close($fh);
@@ -320,71 +255,52 @@ sub verify_bag {
     return 1;
 }
 
-=head2 get_checksum 
-
-   This is the checksum for the bag, md5 of the manifest-md5.txt
-
-=cut
 
 sub get_checksum {
   my($self) =@_;
   my $bagit = $self->{'bag_path'};
-  open(my $SRCFILE, $bagit."/manifest-md5.txt");
+  open(my $SRCFILE, "<",  $bagit."/manifest-md5.txt");
   binmode($SRCFILE);
   my $srchex=Digest::MD5->new->addfile($SRCFILE)->hexdigest;
   close($SRCFILE);
   return $srchex;
 }
 
-=head2 version
-
-   Returns the bagit version according to the bagit.txt file.
-=cut
 
 sub version {
     my($self) = @_;
     my $bagit = $self->{'bag_path'};
     my $file = join("/", $bagit, "bagit.txt");
-    open(BAGIT, "<$file") or die("Cannot read $file: $!");
-    my $version_string = <BAGIT>;
-    my $encoding_string = <BAGIT>;
-    close(BAGIT);
+    open(my $BAGIT, "<", $file) or die("Cannot read $file: $!");
+    my $version_string = <$BAGIT>;
+    my $encoding_string = <$BAGIT>;
+    close($BAGIT);
     $version_string =~ /^BagIt-Version: ([0-9.]+)$/;
     return $1 || 0;
 }
 
-=head2 payload_files
-
-  Returns an array with all of the payload files (those files that are below the data directory)
-
-=cut
 
 sub payload_files {
   my($self) = @_;
   my @payload = $self->_payload_files();
-  return @payload; 
+  return @payload;
 }
 
 sub _payload_files{
   my($self) = @_;
 
   my $payload_dir = join( "/", $self->{"bag_path"}, "data");
-  
+
   my @payload=();
-  File::Find::find( sub{ 
-    push(@payload,$File::Find::name); 
-    #print "name: ".$File::Find::name."\n"; 
+  File::Find::find( sub{
+    push(@payload,$File::Find::name);
+    #print "name: ".$File::Find::name."\n";
   }, $payload_dir);
-  
+
   return @payload;
 
 }
 
-=head2 non_payload_files
-
-  Returns an array with files that are in the root of the bag, non-manifest files
-
-=cut
 
 sub non_payload_files{
   my ($self) = @_;
@@ -416,11 +332,6 @@ sub _non_payload_files {
 }
 
 
-=head2 manifest_files
-
-  return an array with the list of manifest files that exist in the bag
-
-=cut
 
 sub manifest_files {
   my($self) = @_;
@@ -435,11 +346,6 @@ sub manifest_files {
   return @manifest_files;
 }
 
-=head2 tagmanifest_files
-  
-  return an array with the list of tagmanifest files
-
-=cut
 
 sub tagmanifest_files {
   my ($self) = @_;
@@ -451,13 +357,106 @@ sub tagmanifest_files {
     }
   }
   return @tagmanifest_files;
-  
+
 }
+
+1; # End of Archive::BagIt
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Archive::BagIt
+
+=head1 VERSION
+
+version 0.048
+
+=head1 SYNOPSIS
+
+This modules will hopefully help with the basic commands needed to create
+and verify a bag. My intention is not to be strict and enforce all of the
+specification. The reference implementation is the java version
+and I will endeavour to maintain compatibility with it.
+
+    use Archive::BagIt;
+
+    #read in an existing bag:
+    my $bag_dir = "/path/to/bag";
+    my $bag = Archive::BagIt->new($bag_dir);
+
+
+    #construct bag in an existing directory
+    my $bag2 = Archive::BagIt->make_bag($bag_dir);
+
+    # Validate a BagIt archive against its manifest
+    my $bag3 = Archive::BagIt->new($bag_dir);
+    my $is_valid = $bag3->verify_bag();
+
+=head1 WARNING
+
+This is experimental software for the moment and under active development. I
+hope to have a beta version available soon.
+
+We use it fairly widely in-house, but it doesn't necessarily implement all of the specs.
+
+Email me with anything you need done urgently.
+
+Also: Check out Archive::BagIt::Fast if you are willing to add some extra dependendies to get
+better speed by mmap-ing files.
+
+=head1 NAME
+
+Archive::BagIt - An interface to make and verify bags according to the BagIt standard
+
+=head1 SUBROUTINES
+
+=head2 new
+   An Object Oriented Interface to a bag. Opens an existing bag.
+
+=head2 make_bag
+   A constructor that will make and return a bag from a directory
+
+   If a data directory exists, assume it is already a bag (no checking for invalid files in root)
+
+=head2 verify_bag
+
+An interface to verify a bag.
+
+You might also want to check Archive::BagIt::Fast to see a more direct way of accessing files (and thus faster).
+
+=head2 get_checksum
+
+   This is the checksum for the bag, md5 of the manifest-md5.txt
+
+=head2 version
+
+   Returns the bagit version according to the bagit.txt file.
+
+=head2 payload_files
+
+  Returns an array with all of the payload files (those files that are below the data directory)
+
+=head2 non_payload_files
+
+  Returns an array with files that are in the root of the bag, non-manifest files
+
+=head2 manifest_files
+
+  return an array with the list of manifest files that exist in the bag
+
+=head2 tagmanifest_files
+
+  return an array with the list of tagmanifest files
+
 =head1 AUTHOR
 
 Robert Schmidt, E<lt>rjeschmi at gmail.comE<gt>
 William Wueppelmann, E<lt>william at c7a.caE<gt>
-
 
 =head1 BUGS
 
@@ -465,15 +464,11 @@ Please report any bugs or feature requests to C<bug-archive-bagit at rt.cpan.org
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Archive-BagIt>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
-
-
-
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
 
     perldoc Archive::BagIt
-
 
 You can also look for information at:
 
@@ -497,17 +492,40 @@ L<http://search.cpan.org/dist/Archive-BagIt/>
 
 =back
 
-
 =head1 COPYRIGHT
 
 Copyright (c) 2012, the above named author(s).
-
 
 =head1 LICENSE
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
-=cut
+=head1 AVAILABILITY
 
-1; # End of Archive::BagIt
+The latest version of this module is available from the Comprehensive Perl
+Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
+site near you, or see L<https://metacpan.org/module/Archive::BagIt/>.
+
+=head1 SOURCE
+
+The development version is on github at L<http://github.com/rjeschmi/Archive-BagIt>
+and may be cloned from L<git://github.com/rjeschmi/Archive-BagIt.git>
+
+=head1 BUGS AND LIMITATIONS
+
+You can make new bug reports, and view existing ones, through the
+web interface at L<https://github.com/rjeschmi/Archive-BagIt/issues>.
+
+=head1 AUTHOR
+
+Rob Schmidt <rjeschmi@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2014 by Rob Schmidt and William Wueppelmann.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut

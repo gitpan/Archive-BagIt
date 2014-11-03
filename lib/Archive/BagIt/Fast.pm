@@ -1,18 +1,12 @@
 package Archive::BagIt::Fast;
-$Archive::BagIt::Fast::VERSION = '0.047'; # TRIAL
+
+use strict;
 use parent "Archive::BagIt";
+
+our $VERSION = '0.048'; # TRIAL VERSION
 
 use IO::AIO;
 use Time::HiRes qw(time);
-=head1 NAME
-
-Archive::BagIt::Fast - For people who are willing to rely on some other modules in order to get better performance
-
-=head1 VERSION
-
-version 0.047
-
-=cut
 
 
 
@@ -29,21 +23,15 @@ sub verify_bag {
     my $MMAP_MIN = $opts->{mmap_min} || 8000000;
     my %invalids;
     my @payload       = ();
-
-  
-
     die("$manifest_file is not a regular file") unless -f ($manifest_file);
     die("$payload_dir is not a directory") unless -d ($payload_dir);
-
     # Read the manifest file
     #print Dumper($self->{entries});
     foreach my $entry (keys($self->{entries})) {
       $manifest{$entry} = $self->{entries}->{$entry};
     }
-
     # Compile a list of payload files
     File::Find::find(sub{ push(@payload, $File::Find::name)  }, $payload_dir);
-
     # Evaluate each file against the manifest
     my $digestobj = new Digest::MD5;
     foreach my $file (@payload) {
@@ -98,3 +86,50 @@ sub verify_bag {
 
 
 1;
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+Archive::BagIt::Fast
+
+=head1 VERSION
+
+version 0.048
+
+=head1 NAME
+
+Archive::BagIt::Fast - For people who are willing to rely on some other modules in order to get better performance
+
+=head1 AVAILABILITY
+
+The latest version of this module is available from the Comprehensive Perl
+Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
+site near you, or see L<https://metacpan.org/module/Archive::BagIt/>.
+
+=head1 SOURCE
+
+The development version is on github at L<http://github.com/rjeschmi/Archive-BagIt>
+and may be cloned from L<git://github.com/rjeschmi/Archive-BagIt.git>
+
+=head1 BUGS AND LIMITATIONS
+
+You can make new bug reports, and view existing ones, through the
+web interface at L<https://github.com/rjeschmi/Archive-BagIt/issues>.
+
+=head1 AUTHOR
+
+Rob Schmidt <rjeschmi@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2014 by Rob Schmidt and William Wueppelmann.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
