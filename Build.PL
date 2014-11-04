@@ -18,7 +18,7 @@ my %module_build_args = (
     "Rob Schmidt <rjeschmi\@gmail.com>"
   ],
   "dist_name" => "Archive-BagIt",
-  "dist_version" => "0.048",
+  "dist_version" => "0.049",
   "license" => "perl",
   "module_name" => "Archive::BagIt",
   "recommends" => {

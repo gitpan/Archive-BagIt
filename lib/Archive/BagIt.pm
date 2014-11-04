@@ -4,7 +4,7 @@ use strict;
 use 5.006;
 use warnings;
 
-our $VERSION = '0.048'; # TRIAL VERSION
+our $VERSION = '0.049'; # TRIAL VERSION
 
 our @checksum_algos = qw(md5 sha1);
 our $DEBUG=0;
@@ -94,7 +94,7 @@ sub make_bag {
 sub _write_bagit {
     my($self, $bagit) = @_;
     open(my $BAGIT, ">", $bagit."/bagit.txt") or die("Can't open $bagit/bagit.txt for writing: $!");
-    print($BAGIT, "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8");
+    print($BAGIT "BagIt-Version: 0.97\nTag-File-Character-Encoding: UTF-8");
     close($BAGIT);
     return 1;
 }
@@ -209,6 +209,10 @@ sub verify_bag {
 
     die("$manifest_file is not a regular file") unless -f ($manifest_file);
     die("$payload_dir is not a directory") unless -d ($payload_dir);
+
+    unless ($self->version() > .95) {
+        die ("Bag Version is unsupported");
+    }
 
     # Read the manifest file
     #print Dumper($self->{entries});
@@ -374,7 +378,7 @@ Archive::BagIt
 
 =head1 VERSION
 
-version 0.048
+version 0.049
 
 =head1 SYNOPSIS
 
