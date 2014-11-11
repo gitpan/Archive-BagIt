@@ -4,7 +4,7 @@ use strict;
 use 5.006;
 use warnings;
 
-our $VERSION = '0.049'; # TRIAL VERSION
+our $VERSION = '0.050'; # VERSION
 
 our @checksum_algos = qw(md5 sha1);
 our $DEBUG=0;
@@ -378,7 +378,7 @@ Archive::BagIt
 
 =head1 VERSION
 
-version 0.049
+version 0.050
 
 =head1 SYNOPSIS
 

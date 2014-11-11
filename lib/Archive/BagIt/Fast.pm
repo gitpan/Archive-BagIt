@@ -3,7 +3,7 @@ package Archive::BagIt::Fast;
 use strict;
 use parent "Archive::BagIt";
 
-our $VERSION = '0.049'; # TRIAL VERSION
+our $VERSION = '0.050'; # VERSION
 
 use IO::AIO;
 use Time::HiRes qw(time);
@@ -99,7 +99,7 @@ Archive::BagIt::Fast
 
 =head1 VERSION
 
-version 0.049
+version 0.050
 
 =head1 NAME
 

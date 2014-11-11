@@ -79,7 +79,7 @@
          }
       }
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/rjeschmi/Archive-BagIt/issues"
@@ -90,6 +90,6 @@
          "web" : "https://github.com/rjeschmi/Archive-BagIt"
       }
    },
-   "version" : "0.049"
+   "version" : "0.050"
 }
 
