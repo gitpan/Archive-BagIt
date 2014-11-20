@@ -18,7 +18,7 @@ my %module_build_args = (
     "Rob Schmidt <rjeschmi\@gmail.com>"
   ],
   "dist_name" => "Archive-BagIt",
-  "dist_version" => "0.050",
+  "dist_version" => "0.051",
   "license" => "perl",
   "module_name" => "Archive::BagIt",
   "recommends" => {
@@ -27,12 +27,16 @@ my %module_build_args = (
   "recursive_test_files" => 1,
   "requires" => {
     "Data::Dumper" => 0,
+    "Data::Printer" => 0,
     "Digest::MD5" => 0,
     "File::Find" => 0,
+    "File::Spec" => 0,
     "IO::AIO" => 0,
+    "Moo" => 0,
     "Moose" => 0,
     "POSIX" => 0,
     "String::CRC32" => 0,
+    "Sub::Quote" => 0,
     "Time::HiRes" => 0,
     "parent" => 0,
     "perl" => "5.014",

@@ -6,10 +6,12 @@ use warnings;
 
 use Test::More;
 
-plan tests => 2 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
+plan tests => 4 + ($ENV{AUTHOR_TESTING} ? 1 : 0);
 
 my @module_files = (
     'Archive/BagIt.pm',
+    'Archive/BagIt/Base.pm',
+    'Archive/BagIt/DotBagIt.pm',
     'Archive/BagIt/Fast.pm'
 );
 
