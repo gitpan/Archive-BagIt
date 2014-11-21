@@ -9,7 +9,7 @@ use Digest::MD5;
 
 use Data::Printer;
 
-our $VERSION = '0.051'; # VERSION
+our $VERSION = '0.052'; # VERSION
 
 use Sub::Quote;
 use Moo;
@@ -438,7 +438,7 @@ Archive::BagIt::Base
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =head1 NAME
 

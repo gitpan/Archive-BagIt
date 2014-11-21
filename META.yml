@@ -47,4 +47,4 @@ requires:
 resources:
   bugtracker: https://github.com/rjeschmi/Archive-BagIt/issues
   repository: git://github.com/rjeschmi/Archive-BagIt.git
-version: '0.051'
+version: '0.052'
