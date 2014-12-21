@@ -4,7 +4,7 @@
       "Rob Schmidt <rjeschmi@gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 5.022, CPAN::Meta::Converter version 2.142690",
+   "generated_by" : "Dist::Zilla version 5.029, CPAN::Meta::Converter version 2.142690",
    "license" : [
       "perl_5"
    ],
@@ -51,8 +51,8 @@
          },
          "requires" : {
             "Data::Dumper" : "0",
-            "Data::Printer" : "0",
             "Digest::MD5" : "0",
+            "Encode" : "0",
             "File::Find" : "0",
             "File::Spec" : "0",
             "IO::AIO" : "0",
@@ -62,9 +62,11 @@
             "String::CRC32" : "0",
             "Sub::Quote" : "0",
             "Time::HiRes" : "0",
+            "open" : "0",
             "parent" : "0",
             "perl" : "5.014",
             "strict" : "0",
+            "utf8" : "0",
             "warnings" : "0"
          },
          "suggests" : {
@@ -73,6 +75,7 @@
       },
       "test" : {
          "requires" : {
+            "Data::Printer" : "0",
             "File::Copy" : "0",
             "File::Path" : "0",
             "File::Spec" : "0",
@@ -83,7 +86,7 @@
          }
       }
    },
-   "release_status" : "stable",
+   "release_status" : "testing",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/rjeschmi/Archive-BagIt/issues"
@@ -94,6 +97,6 @@
          "web" : "https://github.com/rjeschmi/Archive-BagIt"
       }
    },
-   "version" : "0.052"
+   "version" : "0.053"
 }
 
